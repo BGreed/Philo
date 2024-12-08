@@ -6,7 +6,7 @@
 #    By: braugust <braugust@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/08 19:21:07 by braugust          #+#    #+#              #
-#    Updated: 2024/12/08 19:21:40 by braugust         ###   ########.fr        #
+#    Updated: 2024/12/08 20:01:13 by braugust         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -48,5 +48,5 @@ re:
             @$(MAKE) -s fclean all
             @echo "$(YELLOW)$(BOLD)\n\tDone recompiling! ✅\n$(RESET)"
 
-.PHONY:     bonus all clean fclean re
+.PHONY:     all clean fclean re
 
