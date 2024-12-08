@@ -6,7 +6,7 @@
 #    By: braugust <braugust@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/08 19:21:07 by braugust          #+#    #+#              #
-#    Updated: 2024/12/08 20:01:13 by braugust         ###   ########.fr        #
+#    Updated: 2024/12/08 20:27:48 by braugust         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ CC =        @cc
 CFLAGS =    -Wall -Werror -Wextra
 AR =        ar rcs
 RM =        rm -rf
-SRCS =      
+SRCS =      main.c
 
 OBJS =        $(SRCS:.c=.o)
 
