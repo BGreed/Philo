@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:24:14 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/15 18:35:06 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/15 19:44:12 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,24 +21,23 @@ long	get_time(void)
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-
-
 bool	philo_init(t_data *data)
 {
 	int	i;
 
 	i = 0;
-	while (i <= data->philo)
+	while (i < data->nb_philosophers)
 	{
-		ft_lstaddback(data->philo, ft_lstnew(i));
+		ft_lstaddback(&(data->philo), ft_lstnew(i));
 		i++;
 	}
-	join_lst();
+	join_lst(&(data->philo));
+	return (true);
 }
 
 bool	display_move(t_philo *philo, char *str)
-{	
-	printf("%d %s",philo->id, str);
+{
+	printf("%d %s", philo->id, str);
 }
 
 void	*routine(void *tmp)
@@ -53,11 +52,11 @@ void	*routine(void *tmp)
 			break ;
 		if (check_finished())
 			break ;
-		if (eat())
+		if (ft_eat())
 			break ;
-		if (sleep())
+		if (ft_sleep())
 			break ;
-		if (think())
+		if (ft_think())
 			break ;
 	}
 }
@@ -71,19 +70,24 @@ bool	monitoring(t_data *data)
 			break ;
 		data->philo = data->philo->next;
 	}
-	return 1
+	return (true);
 }
 
 void	free_philo(t_data *data)
 {
-	cut_circle();
+	t_philo	*lst;
+	t_philo	*temp;
+
+	cut_circle(data);
+	lst = data->philo;
 	while (lst)
 	{
-		// free node
-		// destroy mutex
-		lst = lst->new;
+		temp = lst->next;
+		pthread_mutex_destroy(&(lst->fork));
+		free(lst);
+		lst = temp;
 	}
-	return (0);
+	data->philo = NULL;
 }
 
 int	main(int ac, char **av)

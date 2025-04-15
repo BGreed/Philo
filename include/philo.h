@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:22:43 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/15 18:35:22 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/15 19:37:44 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,16 @@ typedef struct s_data
 	pthread_mutex_t	smn_died;
 }					t_data;
 
-int					is_number(const char *str);
+// lib
+
+void				ft_lstaddback(t_philo **lst, t_philo *new);
+t_philo				*ft_lstnew(int id);
+long				get_time(void);
+void				join_lst(t_philo **head);
+void				cut_circle(t_data *data);
+
+// parsing
+
 int					parse_args(int ac, char **av, t_data *data);
 
 #endif
