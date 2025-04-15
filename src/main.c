@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:24:14 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/15 19:44:12 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/15 21:35:00 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,5 +103,5 @@ int	main(int ac, char **av)
 		if (monitoring(&data))
 			break ;
 	}
-	free_philo();
+	free_philo(&data);
 }

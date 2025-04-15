@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/15 18:46:13 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/15 19:38:21 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/15 21:38:38 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,3 +72,4 @@ void	cut_circle(t_data *data)
 		temp = temp->next;
 	temp->next = NULL;
 }
+
