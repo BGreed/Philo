@@ -1,52 +1,44 @@
 # **************************************************************************** #
-#                                                                              #
+#			                                                                  #
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: braugust <braugust@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/08 19:21:07 by braugust          #+#    #+#              #
-#    Updated: 2024/12/08 20:27:48 by braugust         ###   ########.fr        #
+#    Updated: 2025/04/15 15:36:32 by braugust         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME =      philo
-CC =        @cc
-CFLAGS =    -Wall -Werror -Wextra
-AR =        ar rcs
-RM =        rm -rf
-SRCS =      main.c
+ 
+CC = cc -g3
+CFLAGS = -Wall -Wextra -Werror
 
-OBJS =        $(SRCS:.c=.o)
+NAME = philo
+OBJDIR = obj
 
-GREEN =        \033[1;32m
-YELLOW =    \033[1;33m
-BLUE =        \033[1;34m
-RED =        \033[1;31m
-RESET =        \033[0m
-BOLD =        \033[1m
+SRC = $(shell find . -type f -name "*.c")
 
-$(NAME):     $(OBJS)
-            @echo "$(BLUE)$(BOLD)\n\tCompiling ${NAME}... 🛠️\n$(RESET)"
-            @$(AR) $(NAME) $(OBJS)
-            @echo "$(GREEN)$(BOLD)\n\t${NAME} compiled 🚀\n$(RESET)"
+OBJ = $(patsubst %.c,$(OBJDIR)/%.o,$(SRC))
 
-all:         $(NAME)
+$(shell mkdir -p $(OBJDIR))
+
+$(NAME): $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) -lreadline
+	@echo "*----------------------*"
+	@echo "\033[1;32mCompilation completed 🎉\033[0m"
+	@echo "*----------------------*"
+
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-            @echo "$(RED)$(BOLD)\n\tCleaning up object files 🧹\n$(RESET)"
-            @$(RM) $(OBJS)
-            @echo "$(GREEN)$(BOLD)\n\tObject files removed! ✅\n$(RESET)"
+	rm -rf $(OBJDIR)
 
-fclean:     clean
-            @echo "$(RED)$(BOLD)\n\tDeleting ${NAME} 🗑️\n$(RESET)"
-            @$(RM) $(NAME)
-            @echo "$(GREEN)$(BOLD)\n\t${NAME} deleted! ❌\n$(RESET)"
+fclean: clean
+	rm -f $(NAME)
 
-re: 
-            @echo "$(YELLOW)$(BOLD)\n\tRecompiling ${NAME} 🔄\n$(RESET)"
-            @$(MAKE) -s fclean all
-            @echo "$(YELLOW)$(BOLD)\n\tDone recompiling! ✅\n$(RESET)"
+re: fclean $(NAME)
 
-.PHONY:     all clean fclean re
-
+.PHONY: clean fclean re
