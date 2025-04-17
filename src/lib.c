@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/15 18:46:13 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/15 21:38:38 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/17 19:24:12 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void	join_lst(t_philo **head)
 
 void	cut_circle(t_data *data)
 {
-	t_philo *temp;
+	t_philo	*temp;
 
 	if (!data || !data->philo)
 		return ;
@@ -73,3 +73,44 @@ void	cut_circle(t_data *data)
 	temp->next = NULL;
 }
 
+bool	check_dead(t_data *data)
+{
+	long	current_time;
+	t_philo	*temp;
+
+	if (!data || !data->philo)
+		return (false);
+	current_time = get_time();
+	temp = data->philo;
+	while (1)
+	{
+		if ((current_time - temp->last_eat) > data->time_to_die)
+		{
+			pthread_mutex_lock(&data->smn_died);
+			printf("%ld %d %s\n", current_time, temp->id, DIED);
+			pthread_mutex_unlock(&data->smn_died);
+			return (true);
+		}
+		temp = temp->next;
+		if (temp == data->philo)
+			break ;
+	}
+	return (false);
+}
+
+
+bool	ft_sleep(t_philo *philo, t_data *data)
+{
+	long	start;
+
+	display_move(philo, SLEEP);
+	start = get_time();
+	while (get_time() - start < data->time_to_sleep)
+	{
+		if (check_dead(data))
+			return (true);
+		usleep(1000);
+	}
+	philo->slept = true;
+	return (false);
+}

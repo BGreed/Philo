@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:24:14 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/15 21:35:00 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/17 20:12:25 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,34 +37,45 @@ bool	philo_init(t_data *data)
 
 bool	display_move(t_philo *philo, char *str)
 {
-	printf("%d %s", philo->id, str);
+	long	time;
+
+	time = get_time() - philo->data->start_time;
+	pthread_mutex_lock(&philo->data->smn_died);
+	printf("%ld %d %s\n", time, philo->id, str);
+	pthread_mutex_unlock(&philo->data->smn_died);
+	return (false);
 }
 
 void	*routine(void *tmp)
 {
 	t_philo	*philo;
+	t_data	*data;
 
 	philo = (t_philo *)tmp;
-	// check if pair ou impair
+	data = philo->data;
+	if (philo->id % 2 == 0)
+		usleep(data->time_to_eat * 1000 / 2);
 	while (1)
 	{
-		if (check_dead())
+		if (check_dead(data))
 			break ;
 		if (check_finished())
 			break ;
 		if (ft_eat())
 			break ;
-		if (ft_sleep())
+		if (ft_sleep(philo, data))
 			break ;
 		if (ft_think())
 			break ;
 	}
+	return (NULL);
 }
+
 bool	monitoring(t_data *data)
 {
 	while (1)
 	{
-		if (check_dead())
+		if (check_dead(data))
 			break ;
 		if (check_finished())
 			break ;
@@ -96,6 +107,7 @@ int	main(int ac, char **av)
 
 	if (parse_args(ac, av, &data))
 		return (1);
+	data.start_time = get_time();
 	if (philo_init(&data))
 		return (1);
 	while (1)

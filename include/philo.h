@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:22:43 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/15 19:37:44 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/17 19:59:37 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ typedef struct s_philo
 	long			last_eat;
 	pthread_t		pid;
 	pthread_mutex_t	fork;
+	struct s_data	*data;
 	struct s_data	*next;
 }					t_philo;
 
@@ -49,6 +50,7 @@ typedef struct s_data
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				nb_must_eat;
+	long			start_time;
 	t_philo			*philo;
 	pthread_mutex_t	all_finished;
 	pthread_mutex_t	smn_died;
@@ -61,6 +63,12 @@ t_philo				*ft_lstnew(int id);
 long				get_time(void);
 void				join_lst(t_philo **head);
 void				cut_circle(t_data *data);
+bool				check_dead(t_data *data);
+bool				ft_sleep(t_philo *philo, t_data *data);
+
+// main
+
+bool				display_move(t_philo *philo, char *str);
 
 // parsing
 
