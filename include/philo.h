@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:22:43 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/17 19:59:37 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/18 17:51:00 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ typedef struct s_philo
 	pthread_t		pid;
 	pthread_mutex_t	fork;
 	struct s_data	*data;
-	struct s_data	*next;
+	struct s_philo	*next;
 }					t_philo;
 
 typedef struct s_data
@@ -51,6 +51,7 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				nb_must_eat;
 	long			start_time;
+	bool			died;
 	t_philo			*philo;
 	pthread_mutex_t	all_finished;
 	pthread_mutex_t	smn_died;
@@ -65,13 +66,27 @@ void				join_lst(t_philo **head);
 void				cut_circle(t_data *data);
 bool				check_dead(t_data *data);
 bool				ft_sleep(t_philo *philo, t_data *data);
-
+bool				check_finished(t_data *data);
+bool				wait_or_check_dead(long ms, t_data *data);
+bool				ft_think(t_philo *philo);
 // main
 
 bool				display_move(t_philo *philo, char *str);
+void				*routine(void *tmp);
+bool				philo_init(t_data *data);
 
 // parsing
 
 int					parse_args(int ac, char **av, t_data *data);
+
+//eat
+
+bool				ft_eat(t_philo *philo, t_data *data);
+
+// start 
+
+int					init_simulation(t_data *data);
+void				print_death_once(t_philo *philo, t_data *data);
+bool				should_end(t_data *data);
 
 #endif

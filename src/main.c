@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:24:14 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/17 20:12:25 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/19 03:07:46 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,18 +21,24 @@ long	get_time(void)
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-bool	philo_init(t_data *data)
+bool philo_init(t_data *data)
 {
-	int	i;
+    int      i;
+    t_philo *node;
 
-	i = 0;
-	while (i < data->nb_philosophers)
-	{
-		ft_lstaddback(&(data->philo), ft_lstnew(i));
-		i++;
-	}
-	join_lst(&(data->philo));
-	return (true);
+    data->philo = NULL;
+    i = 0;
+    while (i < data->nb_philosophers)
+    {
+        node = ft_lstnew(i + 1);
+        if (!node)
+            return (true);
+        node->data = data;
+        ft_lstaddback(&data->philo, node);
+        i++;
+    }
+    join_lst(&data->philo);
+    return (false);
 }
 
 bool	display_move(t_philo *philo, char *str)
@@ -57,15 +63,17 @@ void	*routine(void *tmp)
 		usleep(data->time_to_eat * 1000 / 2);
 	while (1)
 	{
+		if (should_end(data))
+            break;
 		if (check_dead(data))
 			break ;
-		if (check_finished())
+		if (check_finished(data))
 			break ;
-		if (ft_eat())
+		if (ft_eat(philo, data))
 			break ;
 		if (ft_sleep(philo, data))
 			break ;
-		if (ft_think())
+		if (ft_think(philo))
 			break ;
 	}
 	return (NULL);
@@ -77,7 +85,7 @@ bool	monitoring(t_data *data)
 	{
 		if (check_dead(data))
 			break ;
-		if (check_finished())
+		if (check_finished(data))
 			break ;
 		data->philo = data->philo->next;
 	}
@@ -101,19 +109,22 @@ void	free_philo(t_data *data)
 	data->philo = NULL;
 }
 
-int	main(int ac, char **av)
+int main(int ac, char **av)
 {
-	static t_data	data = {0};
+    static t_data data = {0};
 
-	if (parse_args(ac, av, &data))
-		return (1);
-	data.start_time = get_time();
-	if (philo_init(&data))
-		return (1);
-	while (1)
-	{
-		if (monitoring(&data))
-			break ;
-	}
-	free_philo(&data);
+	data.died = false;
+    if (parse_args(ac, av, &data))
+        return (1);
+    pthread_mutex_init(&data.smn_died,   NULL);
+    pthread_mutex_init(&data.all_finished, NULL);
+    if (init_simulation(&data))
+        return (1);
+    while (!monitoring(&data))
+        ;
+    usleep(1000);
+    free_philo(&data);
+    pthread_mutex_destroy(&data.smn_died);
+    pthread_mutex_destroy(&data.all_finished);
+    return (0);
 }
