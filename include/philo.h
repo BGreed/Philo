@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:22:43 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/18 17:51:00 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/19 11:49:03 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,8 @@ bool				check_dead(t_data *data);
 bool				ft_sleep(t_philo *philo, t_data *data);
 bool				check_finished(t_data *data);
 bool				wait_or_check_dead(long ms, t_data *data);
-bool				ft_think(t_philo *philo);
+bool				ft_think(t_philo *philo, t_data *data);
+bool				check_finished(t_data *data);
 // main
 
 bool				display_move(t_philo *philo, char *str);
@@ -82,6 +83,7 @@ int					parse_args(int ac, char **av, t_data *data);
 //eat
 
 bool				ft_eat(t_philo *philo, t_data *data);
+void				join_threads(t_data *data);
 
 // start 
 
