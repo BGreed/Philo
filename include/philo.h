@@ -6,14 +6,13 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:22:43 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/19 11:49:03 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/19 20:42:48 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
-# include "../libft/libft.h"
 # include <pthread.h>
 # include <stdbool.h>
 # include <stdio.h>
@@ -39,6 +38,7 @@ typedef struct s_philo
 	long			last_eat;
 	pthread_t		pid;
 	pthread_mutex_t	fork;
+	pthread_mutex_t	key_mutex;
 	struct s_data	*data;
 	struct s_philo	*next;
 }					t_philo;
@@ -59,6 +59,7 @@ typedef struct s_data
 
 // lib
 
+int					ft_atoi(const char *str);
 void				ft_lstaddback(t_philo **lst, t_philo *new);
 t_philo				*ft_lstnew(int id);
 long				get_time(void);
@@ -80,12 +81,13 @@ bool				philo_init(t_data *data);
 
 int					parse_args(int ac, char **av, t_data *data);
 
-//eat
+// eat
 
 bool				ft_eat(t_philo *philo, t_data *data);
 void				join_threads(t_data *data);
+void				waiter(t_philo *philo);
 
-// start 
+// start
 
 int					init_simulation(t_data *data);
 void				print_death_once(t_philo *philo, t_data *data);

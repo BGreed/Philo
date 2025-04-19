@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:24:14 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/19 12:06:25 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/19 20:38:07 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,25 +26,29 @@ bool philo_init(t_data *data)
     t_philo *temp;
     int i;
 
+    i = 0;
     if (pthread_mutex_init(&data->all_finished, NULL) != 0 ||
         pthread_mutex_init(&data->smn_died, NULL) != 0)
         return (false);
     data->philo = NULL;
-    for (i = 0; i < data->nb_philosophers; i++)
+    while(i < data->nb_philosophers)
     {
         t_philo *new_philo = ft_lstnew(i + 1);
         if (!new_philo)
             return (false);
         new_philo->data = data;
         ft_lstaddback(&(data->philo), new_philo);
+        i++;
     }
     join_lst(&(data->philo));
     temp = data->philo;
-    for (i = 0; i < data->nb_philosophers; i++)
+    i = 0;
+    while (i < data->nb_philosophers)
     {
         if (pthread_create(&(temp->pid), NULL, routine, temp) != 0)
             return (false);
         temp = temp->next;
+        i++;
     }
     
     return (true);
@@ -74,13 +78,21 @@ void *routine(void *tmp)
     
     philo = (t_philo *)tmp;
     data = philo->data;
+
     if (philo->id % 2 == 0)
-        usleep(1000);
+        usleep(1000);  // Attente pour synchronisation initiale
+
     while (1)
     {
+        // Vérifie si tous les philosophes ont mangé leur nombre de repas
+        if (philo->nb_meals >= data->nb_must_eat && data->nb_must_eat > 0)
+            break;  // Arrête le philosophe s'il a mangé suffisamment
+
+        // Vérifie la mort ou si tous les philosophes ont fini de manger
         if (check_dead(data) || check_finished(data))
             break;
-        
+
+        // Continue le cycle de manger, dormir, penser
         if (ft_eat(philo, data))
             break;
         
@@ -98,9 +110,15 @@ bool monitoring(t_data *data)
     while (1)
     {
         if (check_dead(data))
+        {
+            data->died = true;
             return (true);
+        }
         if (check_finished(data))
+        {
+            data->died = true;
             return (true);
+        }
         usleep(1000);
     }
     return (true);
@@ -118,7 +136,8 @@ void free_philo(t_data *data)
     while (lst)
     {
         temp = lst->next;
-        pthread_mutex_destroy(&(lst->fork));
+        pthread_mutex_destroy(&lst->fork);
+       pthread_mutex_destroy(&lst->key_mutex);
         free(lst);
         lst = temp;
     }
