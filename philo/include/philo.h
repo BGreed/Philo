@@ -6,17 +6,19 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:22:43 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/21 14:39:05 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/21 19:46:18 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
+# include <limits.h>
 # include <pthread.h>
 # include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
 # include <sys/time.h>
 # include <unistd.h>
 
@@ -49,7 +51,7 @@ typedef struct s_data
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int             time_to_think;
+	int				time_to_think;
 	int				nb_must_eat;
 	long			start_time;
 	bool			died;
@@ -67,33 +69,39 @@ long				get_time(void);
 void				join_lst(t_philo **head);
 void				cut_circle(t_data *data);
 bool				check_dead(t_data *data);
-bool				ft_sleep(t_philo *philo, t_data *data);
 bool				check_finished(t_data *data);
-bool				wait_or_check_dead(long ms, t_data *data);
-bool				ft_think(t_philo *philo, t_data *data);
 bool				check_finished(t_data *data);
 // main
 
 bool				display_move(t_philo *philo, char *str);
-void				*routine(void *tmp);
 bool				philo_init(t_data *data);
 
 // parsing
 
 int					parse_args(int ac, char **av, t_data *data);
+void				free_philo(t_data *data);
 
 // eat
 
-bool				ft_eat(t_philo *philo, t_data *data);
-void				join_threads(t_data *data);
-void				waiter(t_philo *philo);
+bool				handle_single_philosopher(t_philo *philo, t_data *data);
+bool				perform_eating(t_philo *philo, t_data *data);
+void				eat_even_philosopher(t_philo *philo);
+void				eat_odd_philosopher(t_philo *philo);
+bool				finalize_eating(t_philo *philo, t_data *data);
 
 // start
 
-int  list_length(t_philo *head);
-void launch_threads(t_data *data);
-void join_threads(t_data *data);
-bool wait_ms_or_terminate(long ms, t_data *data);
+int					list_length(t_philo *head);
+void				launch_threads(t_data *data);
+void				join_threads(t_data *data);
+bool				wait_ms_or_terminate(long ms, t_data *data);
+void				join_threads(t_data *data);
 
+// monitoring
 
+bool				ft_sleep(t_philo *philo, t_data *data);
+bool				ft_think(t_philo *philo, t_data *data);
+bool				ft_eat(t_philo *philo, t_data *data);
+void				*routine(void *tmp);
+void				routine_loop(t_philo *philo, t_data *data);
 #endif
