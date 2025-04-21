@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/15 18:46:13 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/19 20:42:34 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/21 14:59:25 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,38 +42,40 @@ int	ft_atoi(const char *str)
 }
 
 
-void	ft_lstaddback(t_philo **lst, t_philo *new)
+void ft_lstaddback(t_philo **lst, t_philo *new)
 {
-	t_philo	*temp;
+    t_philo *cur;
 
-	if (!lst || !new)
-		return ;
-	if (*lst == NULL)
-		*lst = new;
-	else
-	{
-		temp = *lst;
-		while (temp->next != NULL)
-			temp = temp->next;
-		temp->next = new;
-	}
+    if (!new)
+        return;
+    if (!*lst)
+        *lst = new;
+    else
+    {
+        cur = *lst;
+        while (cur->next)
+            cur = cur->next;
+        cur->next = new;
+    }
 }
 
 t_philo *ft_lstnew(int id)
 {
-    t_philo *new_node = malloc(sizeof(t_philo));
-    if (!new_node)
+    t_philo *new;
+
+    new = malloc(sizeof(*new));
+    if (!new)
         return NULL;
-    if (pthread_mutex_init(&new_node->fork, NULL) != 0 ||
-       pthread_mutex_init(&new_node->key_mutex, NULL) != 0)
-        return (free(new_node), NULL);
-    new_node->id = id;
-    new_node->ate = false;
-    new_node->slept = false;
-    new_node->nb_meals = 0;
-    new_node->last_eat = get_time();
-    new_node->next = NULL;
-    return new_node;
+    new->id = id;
+    new->ate = false;
+    new->slept = false;
+    new->nb_meals = 0;
+    new->last_eat = get_time();
+    if (pthread_mutex_init(&new->fork,    NULL) != 0
+    || pthread_mutex_init(&new->key_mutex, NULL) != 0)
+       return (free(new), NULL);
+   new->next = NULL;
+   return new;
 }
 
 void	join_lst(t_philo **head)
@@ -102,91 +104,82 @@ void	cut_circle(t_data *data)
 
 bool check_dead(t_data *data)
 {
-    t_philo *temp = data->philo;
-    long current_time = get_time();
-    static bool someone_died = false;
-    int i = 0;
+    long     current_time;
+    t_philo *cur;
 
-    if (someone_died)
+    if (!data || !data->philo)
+        return false;
+    if (data->died)
         return true;
-
-    pthread_mutex_lock(&data->smn_died);
-    while (i < data->nb_philosophers)
+    current_time = get_time();
+    cur = data->philo;
+    while (1)
     {
-        pthread_mutex_lock(&temp->key_mutex);
-        if ((current_time - temp->last_eat) > data->time_to_die)
+        pthread_mutex_lock(&cur->key_mutex);
+        if (current_time - cur->last_eat > data->time_to_die)
         {
-            printf("%ld %d %s\n", current_time - data->start_time,
-                   temp->id, DIED);
-            someone_died = true;
-            pthread_mutex_unlock(&temp->key_mutex);
-            break;
+            pthread_mutex_unlock(&cur->key_mutex);
+            pthread_mutex_lock(&data->smn_died);
+            if (!data->died)
+            {
+                data->died = true;
+                printf("%ld %d %s\n",
+                       current_time - data->start_time,
+                       cur->id, DIED);
+            }
+            pthread_mutex_unlock(&data->smn_died);
+
+            return true;
         }
-        pthread_mutex_unlock(&temp->key_mutex);
-        temp = temp->next;
-        i++;
+        pthread_mutex_unlock(&cur->key_mutex);
+
+        cur = cur->next;
+        if (cur == data->philo)
+            break;
     }
-    pthread_mutex_unlock(&data->smn_died);
-    return someone_died;
-}
-
-bool	ft_sleep(t_philo *philo, t_data *data)
-{
-	display_move(philo, SLEEP);
-	if (wait_or_check_dead(data->time_to_sleep, data))
-		return (true);
-	philo->slept = true;
-	return (false);
-}
-
-bool wait_or_check_dead(long ms, t_data *data)
-{
-    long start;
-
-    start = get_time();
-    while (get_time() - start < ms)
-    {
-        if (check_dead(data))
-            return (true);
-        usleep(1000);
-    }
-	if (should_end(data))
-		return (true);
-    return (false);
-}
-
-bool ft_think(t_philo *philo, t_data *data)
-{
-    if (check_dead(data))
-        return (true);
-    
-    display_move(philo, THINK);
-    usleep(1000);
-    return (false);
+    return data->died;
 }
 
 bool check_finished(t_data *data)
 {
-    int i = 0;
-    int count = 0;
-    t_philo *temp = data->philo;
+    t_philo *cur;
+    int      count  = 0;
+    int      target = data->nb_must_eat;
 
-    pthread_mutex_lock(&data->all_finished);
-    while (i < data->nb_philosophers)
+    if (target < 0)
+        return false;
+
+    cur = data->philo;
+    while (cur)
     {
-        pthread_mutex_lock(&temp->key_mutex);
-        if (temp->nb_meals >= data->nb_must_eat)
+        pthread_mutex_lock(&cur->key_mutex);
+        if (cur->nb_meals >= target)
             count++;
-        pthread_mutex_unlock(&temp->key_mutex);
-        temp = temp->next;
-        i++;
-    }
-    pthread_mutex_unlock(&data->all_finished);
+        pthread_mutex_unlock(&cur->key_mutex);
 
-    if (count == data->nb_philosophers)
-    {
-        data->died = true;
-        return true;
+        cur = cur->next;
+        if (cur == data->philo)
+            break;
     }
+    return (count == data->nb_philosophers);
+}
+
+bool ft_sleep(t_philo *philo, t_data *data)
+{
+    long start;
+
+    if (check_dead(data) || check_finished(data))
+        return true;
+
+    display_move(philo, SLEEP);
+    start = get_time();
+
+    while (get_time() - start < data->time_to_sleep)
+    {
+        if (check_dead(data) || check_finished(data))
+            return true;
+        usleep(1000);
+    }
+    philo->slept = true;
     return false;
 }

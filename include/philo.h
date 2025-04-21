@@ -6,7 +6,7 @@
 /*   By: braugust <braugust@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/08 20:22:43 by braugust          #+#    #+#             */
-/*   Updated: 2025/04/19 20:42:48 by braugust         ###   ########.fr       */
+/*   Updated: 2025/04/21 14:39:05 by braugust         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ typedef struct s_data
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
+	int             time_to_think;
 	int				nb_must_eat;
 	long			start_time;
 	bool			died;
@@ -89,8 +90,10 @@ void				waiter(t_philo *philo);
 
 // start
 
-int					init_simulation(t_data *data);
-void				print_death_once(t_philo *philo, t_data *data);
-bool				should_end(t_data *data);
+int  list_length(t_philo *head);
+void launch_threads(t_data *data);
+void join_threads(t_data *data);
+bool wait_ms_or_terminate(long ms, t_data *data);
+
 
 #endif
